@@ -1,4 +1,6 @@
   def do_add_relation (left_class,relation,right_class,option=nil,option_vars=[])
+    params = [left_class,relation,right_class,option=nil,option_vars=[]]
+    print "\n>>", params.join( "|"), "\n"
     left_class_file = File.join(Rails.root,"app/models/#{left_class.tableize.singularize}.rb")
     right_class_file= File.join(Rails.root,"app/models/#{right_class.tableize.singularize}.rb")
     print ">> ", right_class_file ,"\n"
@@ -73,6 +75,7 @@
     #2.  for each relation do:
     jobs=[]
     relations.each do | relation |
+      the_left_class = left_class
       relation,right_class,option,*option_vars = relation.split ":"
       right_class = right_class.singularize.camelcase
       #print "\n>",relation,",",right_class,",",option,",",option_vars,"\n"
@@ -84,16 +87,16 @@
       # todo, later
       #2.2 detemine what relation it will be. add reverse relations to jobs
       print "found ", relation," to ",right_class,"\n"
-      do_add_relation(left_class,relation,right_class,option,option_vars)
+      do_add_relation(the_left_class,relation,right_class,option,option_vars)
       if ["has_one_me","has_me_only","has_only_me","has_one"].include? option 
         relation="has_one"
-        right_class,left_class=left_class,right_class #swap left and right
-        do_add_relation(left_class,relation,right_class,option,option_vars)
+        right_class,the_left_class=the_left_class,right_class #swap left and right
+        do_add_relation(the_left_class,relation,right_class,option,option_vars)
       end
       if ["belongs_to_me"].include? option
         relation="belongs_to"
-        right_class,left_class=left_class,right_class #swap left and right
-        do_add_relation(left_class,relation,right_class,option,option_vars)
+        right_class,the_left_class=the_left_class,right_class #swap left and right
+        do_add_relation(the_left_class,relation,right_class,option,option_vars)
       end
 
     end 
