@@ -5,23 +5,41 @@
     case  #2.2.1 make the changes in each cases
     when "has_one"===relation
       inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-<<-"INJECTED"
-  has_one :#{right_class.tableize.singularize}
-INJECTED
+        "has_one :#{right_class.tableize.singularize}"
       end
-    when "has_many"===relation
-            inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-<<-"INJECTED"
-  has_many :#{right_class.tableize.singularize}
-INJECTED
-      end
-    when "belongs_to"===relation
-                  inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-<<-"INJECTED"
-  belongs_to :#{right_class.tableize.singularize}
-INJECTED
-    when "many_to_many"===relation
       
+    when "has_many"===relation
+      inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
+        "  has_many :#{right_class.tableize.singularize}"
+      end
+
+    when "belongs_to"===relation
+      inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
+        "  belongs_to :#{right_class.tableize.singularize}"
+      end
+    when "many_to_many"===relation
+      if ["through","join_by","join_model"].include? option
+        join_model = option_vars.shift
+      else
+        if !option_vars.empty?
+          join_model = option_vars.shift
+        else
+          join_model = "#{left_class.tableize.singularize}_#{right_class.tableize}"
+        end
+        join_model = join_model.tableize.singularize
+        generate "model","#{join_model} #{left_class}:references #{right_class}:references #{option_vars.join(" ")}"
+      end
+      join_class = join_model.classify
+      join_model_file = File.join(Rails.root,"app/models/#{join_model}.rb")
+      inject_into_file join_model_file,after:"class #{join_class}  < ApplicationRecord\n" do
+        "  belongs_to :#{left_class.tableize.singularize}\n  belongs_to :#{right_class.tableize.singularize}"
+      end
+      inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
+        "  has_many :#{join_model}\n  has_may :#{right_class.tableize} :through => :#{join_model}"
+      end
+      inject_into_file right_class_file,after:"class #{right_class} < ApplicationRecord\n" do
+        "  has_many :#{join_model}\n  has_may :#{left_class.tableize} :through => :#{join_model}"
+      end
     else
       print "ERROR:unknow relationship:#{relation}. going to die\n" 
       #die
@@ -40,7 +58,7 @@ INJECTED
   #    belongs_to:dark_lord:has_one_me \
   #    many_to_many:schools \
   #    many_to_many:users:through:friendship 
-  
+  #    many_to_many:doctor:through_with_extra:apointment:start_at,datetime:end_at,datetime
   #options 
 
   
