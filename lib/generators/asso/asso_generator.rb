@@ -5,17 +5,17 @@
     case  #2.2.1 make the changes in each cases
     when "has_one"===relation
       inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-        "has_one :#{right_class.tableize.singularize}"
+        "  has_one :#{right_class.tableize.singularize}\n"
       end
       
     when "has_many"===relation
       inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-        "  has_many :#{right_class.tableize.singularize}"
+        "  has_many :#{right_class.tableize.singularize}\n"
       end
 
     when "belongs_to"===relation
       inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-        "  belongs_to :#{right_class.tableize.singularize}"
+        "  belongs_to :#{right_class.tableize.singularize}\n"
       end
     when "many_to_many"===relation
       if ["through","join_by","join_model"].include? option
@@ -32,13 +32,13 @@
       join_class = join_model.classify
       join_model_file = File.join(Rails.root,"app/models/#{join_model}.rb")
       inject_into_file join_model_file,after:"class #{join_class}  < ApplicationRecord\n" do
-        "  belongs_to :#{left_class.tableize.singularize}\n  belongs_to :#{right_class.tableize.singularize}"
+        "  belongs_to :#{left_class.tableize.singularize}\n  belongs_to :#{right_class.tableize.singularize}\n"
       end
       inject_into_file left_class_file,after:"class #{left_class} < ApplicationRecord\n" do
-        "  has_many :#{join_model}\n  has_may :#{right_class.tableize} :through => :#{join_model}"
+        "  has_many :#{join_model}\n  has_may :#{right_class.tableize} :through => :#{join_model}\n"
       end
       inject_into_file right_class_file,after:"class #{right_class} < ApplicationRecord\n" do
-        "  has_many :#{join_model}\n  has_may :#{left_class.tableize} :through => :#{join_model}"
+        "  has_many :#{join_model}\n  has_may :#{left_class.tableize} :through => :#{join_model}\n"
       end
     else
       print "ERROR:unknow relationship:#{relation}. going to die\n" 
