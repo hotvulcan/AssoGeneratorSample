@@ -1,0 +1,2 @@
+class DarkLord < ApplicationRecord
+end
