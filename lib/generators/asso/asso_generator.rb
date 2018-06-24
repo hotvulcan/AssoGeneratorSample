@@ -20,6 +20,33 @@
         "  belongs_to :#{right_class.tableize.singularize}\n"
       end
     when "many_to_many"===relation
+      if left_class === right_class
+        #todo 如果左右的类是同一个，多对多就会出问题。 
+        print "TODO: Self Joins are note suported by now. you must do it manually 
+              2.10 Self Joins
+                In designing a data model, you will sometimes find a model that should have a relation to itself. For example, you may want to store all employees in a single database model, but be able to trace relationships such as between manager and subordinates. This situation can be modeled with self-joining associations:
+
+                class Employee < ApplicationRecord
+                  has_many :subordinates, class_name: \"Employee\",
+                                          foreign_key: \"manager_id\"
+                
+                  belongs_to :manager, class_name: \"Employee\"
+                end
+                With this setup, you can retrieve @employee.subordinates and @employee.manager.
+
+                In your migrations/schema, you will add a references column to the model itself.
+
+                class CreateEmployees < ActiveRecord::Migration[5.0]
+                  def change
+                    create_table :employees do |t|
+                      t.references :manager, index: true
+                      t.timestamps
+                    end
+                  end
+                end"
+        return
+      else
+      end
       if ["through","join_by","join_model"].include? option
         join_model = option_vars.shift
       else
