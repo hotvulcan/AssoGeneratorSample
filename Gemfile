@@ -50,6 +50,7 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'rails-erd', require: false
   gem 'railroady'
+  gem "asso_generator", :path => "../AssoGenerator/"
 end
 
 group :test do
